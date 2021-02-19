@@ -285,9 +285,7 @@ void processKeyboardEvent(CAMERA_INSTANCE camera_instance,GLOBAL_VAL* globalPara
 int raw_callback(BUFFER *buffer) {
        globalParam.frameCnt++;
          if(time(NULL) - begin >= 1){
-             printf("\r[Framerate]: %02d pfs, [Exposure]: %04d, [Focus]: %04d,[Rgain]: %04d, [Bgain]: %04d", 
-                    globalParam.frameCnt,globalParam.exposureVal,globalParam.focusVal,\
-                    globalParam.redGain, globalParam.blueGain);
+             printf("\r[Framerate]: %02d pfs", globalParam.frameCnt);
              fflush(stdout); 
             globalParam.frameCnt = 0;
             begin = time(NULL);
@@ -361,8 +359,8 @@ int main(int argc, char **argv) {
   CAMERA_INSTANCE camera_instance;
   RASPISTILL_STATE state;
   PROCESS_STRUCT  processData;
-  char path = NULL;//"./lens_shading_table/imx230/2672x2004.h";
-  arducam_set_lens_table(camera_instance,path );
+ // char path = NULL;//"./lens_shading_table/imx230/2672x2004.h";
+  //arducam_set_lens_table(camera_instance,path );
    default_status(&state);
     LOG("Open camera...");
     int res = arducam_init_camera(&camera_instance);
@@ -380,16 +378,7 @@ int main(int argc, char **argv) {
     if (res) {
         LOG("set resolution status = %d", res);
         return -1;
-    } 
-
-    resetGlobalParameter(camera_instance, &globalParam);
-    if (arducam_set_control(camera_instance, V4L2_CID_FOCUS_ABSOLUTE,globalParam.focusVal)) {
-        LOG("Failed to set focus, the camera may not support this control.");
-    }
-    if (arducam_set_control(camera_instance, V4L2_CID_EXPOSURE,globalParam.exposureVal)) {
-        LOG("Failed to set exposure, the camera may not support this control.");
-    }
-    arducam_manual_set_awb_compensation(globalParam.redGain,globalParam.blueGain);      
+    }     
     LOG("Start preview...");
     PREVIEW_PARAMS preview_params = {
         .fullscreen = 0,             // 0 is use previewRect, non-zero to use full screen
@@ -407,15 +396,8 @@ int main(int argc, char **argv) {
             return -1;
         }
  printCurrentMode(camera_instance);
- processData.camera_instance = camera_instance;
- processData.state = state;
-  int ret = pthread_create(&processCmd_pt, NULL, prcessCmd,&processData);
-  if(ret){
-      LOG("pthread create failed");
-      return 1;
-  }
   while(1){
-      processKeyboardEvent(camera_instance,&globalParam);
+      ;//processKeyboardEvent(camera_instance,&globalParam);
   }  
 }
 
